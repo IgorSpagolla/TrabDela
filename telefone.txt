@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <regex.h>
+#include <stdbool.h>
+#include <string.h>
+
+bool validarTelefone(char *telefone) {
+    regex_t regex;
+    regcomp(&regex, "^\\(\\d{2}\\)\\s?\\d{4,5}[-\\s]?\\d{4}$", REG_EXTENDED);
+
+    int resultado = regexec(&regex, telefone, 0, NULL, 0);
+    regfree(&regex);
+
+    if (resultado == 0) {
+        return true; // Número de telefone válido
+    } else {
+        return false; // Número de telefone inválido
+    }
+}
+
+int main() {
+    char telefone[20];
+
+    printf("Digite um número de telefone (exemplo: (43)35428000: ");
+    fgets(telefone, sizeof(telefone), stdin);
+
+    telefone[strcspn(telefone, "\n")] = '\0';
+
+    if (validarTelefone(telefone)) {
+        printf("%s é um número de telefone válido.\n", telefone);
+    } else {
+        printf("%s não é um número de telefone válido.\n", telefone);
+    }
+
+    return 0;
+}
