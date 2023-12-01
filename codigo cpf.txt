@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <regex.h>
+#include <string.h>
+#include <time.h> // utiliza o horario do sistema para gerar números aleatorios
+
+// Função para remover os caracteres não numéricos do CPF usando regex
+void removerCaracteresNaoNumericos(char *cpf) {
+    regex_t regex;
+    regcomp(&regex, "[^0-9]", 0);
+
+    regmatch_t match;
+    while (regexec(&regex, cpf, 1, &match, 0) == 0) {
+        if (match.rm_so == -1) break;
+
+        memmove(cpf + match.rm_so, cpf + match.rm_eo, strlen(cpf) - match.rm_eo + 1);
+    }
+
+    regfree(&regex);
+}
+
+// Função para gerar um CPF válido
+void gerarCPF() {
+    int cpf[11];
+    srand(time(NULL));
+
+    // Preencher os primeiros 9 dígitos do CPF com números aleatórios
+    for (int i = 0; i < 9; i++) {
+        cpf[i] = rand() % 10;
+    }
+
+    // Cálculo do primeiro dígito verificador
+    int soma = 0;
+    for (int i = 0; i < 9; i++) {
+        soma += cpf[i] * (10 - i);
+    }
+    int resto = soma % 11;
+    cpf[9] = (resto < 2) ? 0 : (11 - resto);
+
+    // Cálculo do segundo dígito verificador
+    soma = 0;
+    for (int i = 0; i < 10; i++) {
+        soma += cpf[i] * (11 - i);
+    }
+    resto = soma % 11;
+    cpf[10] = (resto < 2) ? 0 : (11 - resto);
+
+    // Converter o CPF gerado para string
+    char cpf_string[15];
+    sprintf(cpf_string, "%03d.%03d.%03d-%02d", cpf[0]*100+cpf[1]*10+cpf[2], cpf[3]*100+cpf[4]*10+cpf[5], cpf[6]*100+cpf[7]*10+cpf[8], cpf[9]*10+cpf[10]);
+
+    // Imprimir o CPF gerado
+    printf("CPF gerado: %s\n", cpf_string);
+
+    // Remover caracteres não numéricos do CPF gerado
+    removerCaracteresNaoNumericos(cpf_string);
+
+    // Imprimir apenas os números do CPF gerado
+    printf("CPF apenas com números: %s\n", cpf_string);
+}
+
+int main() {
+    gerarCPF();
+    return 0;
+}
